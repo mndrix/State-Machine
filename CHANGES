@@ -1,5 +1,8 @@
 Changelog for State-Machine
 
+0.02 2014-03-30T03:07:49
+ - Updated POD for State::Machine::Simple.
+
 0.01 2014-03-30T02:17:57
  - v0.01
    
