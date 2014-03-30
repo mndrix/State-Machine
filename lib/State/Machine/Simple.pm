@@ -118,20 +118,18 @@ sub _stash_config {
     use State::Machine::Simple -dsl;
 
     # light-switch circular-state example
+
     topic 'typical light switch';
-    at_state 'is_on';
+    in_state 'is_off' => ( when => { turn_on => 'is_on' } );
+    at_state 'is_on'  => ( when => { turn_off => 'is_off' } );
 
-    in_state 'is_off' => (
-        when => {
-            turn_on => 'is_on'
-        }
-    );
+    sub _during_turn_on {
+        # do something; maybe start the radio
+    }
 
-    in_state 'is_on' => (
-        when => {
-            turn_off => 'is_off'
-        }
-    );
+    sub _after_turn_off {
+        # undo something; maybe stop the radio if playing
+    }
 
     package main;
 
@@ -156,8 +154,12 @@ modeled using State::Machine::Simple.
 
     topic 'support telephone call';
 
+    # initial state
     at_state ringing => (
+        # next transition
         next => 'connect',
+
+        # applicable transitions
         when => {
             hangup  => 'disconnected', # transition -> resulting state
             connect => 'connected',    # transition -> resulting state
@@ -165,7 +167,7 @@ modeled using State::Machine::Simple.
     );
 
     in_state connected => (
-        next => 'request_dept', # assist next transition automation
+        next => 'request_dept',
         when => {
             hangup       => 'disconnected',
             request_dept => 'transferred',
@@ -235,16 +237,8 @@ denotes that it's state definition is the root state (starting point).
 The in_state function defines a state and optionally it's transitions. The
 in_state function requires a state name as it's first argument, and optionally
 a list of attributes that will be used to configure other state behavior. The
-expected attributes are:
-
-=over 2
-
-=item * when
-
-The when attribute should be a hashref whose keys are names of transitions, and
-whose values are names of states.
-
-=back
+value of the C<when> attribute should be a hashref whose keys are names of
+transitions, and whose values are names of states.
 
 =function topic
 
