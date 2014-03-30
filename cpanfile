@@ -1,4 +1,6 @@
 requires "Bubblegum" => "0.23";
+requires "Class::Forward" => "0";
+requires "Class::Load" => "0";
 requires "Exporter::Tiny" => "0";
 requires "perl" => "v5.10.0";
 

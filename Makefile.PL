@@ -22,10 +22,12 @@ my %WriteMakefileArgs = (
   "NAME" => "State::Machine",
   "PREREQ_PM" => {
     "Bubblegum" => "0.23",
+    "Class::Forward" => 0,
+    "Class::Load" => 0,
     "Exporter::Tiny" => 0
   },
   "TEST_REQUIRES" => {},
-  "VERSION" => "0.03",
+  "VERSION" => "0.04",
   "test" => {
     "TESTS" => "t/state/*.t t/state/machine/*.t"
   }
@@ -34,6 +36,8 @@ my %WriteMakefileArgs = (
 
 my %FallbackPrereqs = (
   "Bubblegum" => "0.23",
+  "Class::Forward" => 0,
+  "Class::Load" => 0,
   "Exporter::Tiny" => 0
 );
 
