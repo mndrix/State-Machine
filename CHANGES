@@ -1,6 +1,7 @@
 Changelog for State-Machine
 
-0.03 2014-03-30T19:46:31
+0.03 2014-03-30T19:47:25
+ - Updated Makefile and README.
  - Added better exception handling.
 
 0.02 2014-03-30T03:08:02
