@@ -2,7 +2,7 @@ NAME
     State::Machine - Simple State Machine Implementation
 
 VERSION
-    version 0.02
+    version 0.03
 
 SYNOPSIS
         use State::Machine;

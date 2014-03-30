@@ -1,6 +1,12 @@
 Changelog for State-Machine
 
-0.02 2014-03-30T03:07:49
+0.03 2014-03-30T19:46:31
+ - Added better exception handling.
+
+0.02 2014-03-30T03:08:02
+ - v0.02
+   
+    - Updated POD for State::Machine::Simple.
  - Updated POD for State::Machine::Simple.
 
 0.01 2014-03-30T02:17:57
