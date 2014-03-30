@@ -32,18 +32,34 @@ has 'hooks' => (
     }}
 );
 
+has 'executable' => (
+    is      => 'rw',
+    isa     => _integer,
+    default => 1
+);
+
+has 'terminated' => (
+    is      => 'rw',
+    isa     => _integer,
+    default => 0
+);
+
 sub execute {
     my $self = _object shift;
+    return if !$self->executable;
+
     my @schedules = (
         $self->hooks->get('before'),
         $self->hooks->get('during'),
         $self->hooks->get('after'),
     );
 
+    $self->terminated(0);
     for my $schedule (@schedules) {
         if (isa_arrayref $schedule) {
             for my $task ($schedule->list) {
-                $task->call($self, @_) if $task->typeof('code');
+                next if $self->terminated or !$task->typeof('code');
+                $task->call($self, @_);
             }
         }
     }
@@ -58,8 +74,12 @@ sub hook {
     my $list = $self->hooks->get($name);
 
     unless ($list->typeof('array')) {
-        State::Machine::Failure->throw(
-            "Unrecognized hook ($name) in transition."
+        # transition add-hook failure
+        State::Machine::Failure->raise(
+            class      => 'transition/hook',
+            message    => "Unrecognized hook ($name) in transition.",
+            transition => $self,
+            hook       => $name,
         );
     }
 
@@ -89,6 +109,21 @@ sub hook {
 State::Machine::Transition represents a state transition and it's resulting
 state.
 
+=has executable
+
+    my $executable = $trans->executable;
+    $trans->executable(1);
+
+The executable flag determines whether a transition can be execute.
+
+=has hooks
+
+    my $hooks = $trans->hooks;
+
+The hooks attribute contains the collection of triggers and events to be fired
+when the transition is executed. The C<hook> method should be used to configure
+any hooks into the transition processing.
+
 =has name
 
     my $name = $trans->name;
@@ -104,13 +139,14 @@ The name of the transition. The value can be any scalar value.
 The result represents the resulting state of a transition. The value must be a
 L<State::Machine::State> object.
 
-=has hooks
+=has terminated
 
-    my $hooks = $trans->hooks;
+    my $terminated = $trans->terminated;
+    $trans->terminated(1);
 
-The hooks attribute contains the collection of triggers and events to be fired
-when the transition is executed. The C<hook> method should be used to configure
-any hooks into the transition processing.
+The terminated flag determines whether a transition in-execution should
+continue (i.e. processing hooks). This flag is reset on each execution an is
+meant to be called from within a hook.
 
 =method hook
 

@@ -27,8 +27,12 @@ sub apply {
     my $next  = shift // $state->next;
 
     # cannot transition into unknown state
-    State::Machine::Failure->throw('Transition impossible.')
-        unless isa_string $next;
+    unless (isa_string $next) {
+        State::Machine::Failure->raise(
+            class   => 'transition/unknown',
+            message => 'Transition is unknown.',
+        );
+    }
 
     my $trans = $state->transitions->get($next);
 
@@ -39,15 +43,19 @@ sub apply {
         }
         catch {
             # transition failure
-            State::Machine::Failure->throw(
-                'Transition execution failure.'
+            State::Machine::Failure->raise(
+                class      => 'transition/execution',
+                message    => 'Transition execution failure.',
+                transition => $trans,
+                explain    => $_,
             );
         }
     }
     else {
         # transition not found
-        State::Machine::Failure->throw(
-            'Transition was not found.'
+        State::Machine::Failure->raise(
+            class   => 'transition/unknown',
+            message => 'Transition is unknown.',
         );
     }
 

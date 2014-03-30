@@ -23,7 +23,7 @@ sub BEGIN {
     my $target = caller;
     push @{"${target}::ISA"}, 'State::Machine';
     my $constructor = $target->can('new');
-    *{"${target}::new"} = sub { $constructor->(BUILDMACHINE(@_))};
+    *{"${target}::new"} = sub {$constructor->(BUILDMACHINE(@_))};
 }
 
 sub topic {
@@ -74,9 +74,12 @@ sub BUILDMACHINE {
 
         while (my($key, $val) = each %{$args{when}}) {
             my $result = $register{$val}
-                or State::Machine::Failure->throw(
-                    sprintf 'Transition (%s) cannot result in State (%s); '.
-                        'The state was not defined.', $key, $val
+                or State::Machine::Failure->raise(
+                    config  => $node,
+                    class   => 'simple',
+                    message => sprintf
+                        "Transition ($key) cannot result in the state ".
+                        "($val); The state was not defined.",
                 );
 
             my $trans  = State::Machine::Transition->new(
@@ -120,6 +123,7 @@ sub _stash_config {
     # light-switch circular-state example
 
     topic 'typical light switch';
+
     in_state 'is_off' => ( when => { turn_on => 'is_on' } );
     at_state 'is_on'  => ( when => { turn_off => 'is_off' } );
 

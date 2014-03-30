@@ -39,8 +39,10 @@ sub add_transition {
         return $trans;
     }
 
-    State::Machine::Failure->throw(
-        'Transition was not found.'
+    # transition not found
+    State::Machine::Failure->raise(
+        class   => 'transition/unknown',
+        message => 'Transition is unknown.',
     );
 }
 
@@ -52,8 +54,10 @@ sub remove_transition {
         return $self->transitions->delete($name);
     }
 
-    State::Machine::Failure->throw(
-        'Transition was not found.'
+    # transition not found
+    State::Machine::Failure->raise(
+        class   => 'transition/unknown',
+        message => 'Transition is unknown.',
     );
 }
 
