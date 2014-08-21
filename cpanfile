@@ -1,11 +1,11 @@
-requires "Bubblegum" => "0.23";
-requires "Class::Forward" => "0";
-requires "Class::Load" => "0";
-requires "Exporter::Tiny" => "0";
-requires "perl" => "v5.10.0";
+requires "Bubblegum" => "0.31";
+requires "Exporter::Tiny" => "0.038";
+requires "Function::Parameters" => "1.0401";
+requires "Throwable" => "0.200011";
+requires "perl" => "v5.14.0";
 
 on 'test' => sub {
-  requires "perl" => "v5.10.0";
+  requires "perl" => "v5.14.0";
 };
 
 on 'configure' => sub {

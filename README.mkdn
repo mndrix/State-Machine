@@ -4,7 +4,11 @@ State::Machine - Simple State Machine Implementation
 
 # VERSION
 
-version 0.04
+version 0.05
+
+# STATUS
+
+<a href="https://travis-ci.org/alnewkirk/State-Machine"><img src="https://travis-ci.org/alnewkirk/State-Machine.svg?branch=master"></a>
 
 # SYNOPSIS
 
@@ -34,8 +38,8 @@ version 0.04
         state => $is_off
     );
 
-    $lightswitch->apply('turn_off');
-    $lightswitch->status; # is_off
+    $lightswitch->apply('turn_on');
+    $lightswitch->status; # is_on
 
 # DESCRIPTION
 
@@ -45,7 +49,8 @@ number of states. The machine is in only one state at a time. It can change from
 one state to another when initiated by a triggering event or condition; this is
 called a transition. State::Machine is a system for creating state machines and
 managing their transitions; It is also a great mechanism for enforcing and
-tracking workflow, especially in distributed computing.
+tracking workflow, especially in distributed computing. This library is a
+Moose-based implementation of the [State::Machine](http://search.cpan.org/perldoc?State::Machine) library.
 
 State machines are useful for modeling systems with perform a predetermined
 sequence of event and result in deterministic state. State::Machine, as you

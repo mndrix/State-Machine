@@ -2,7 +2,7 @@ NAME
     State::Machine - Simple State Machine Implementation
 
 VERSION
-    version 0.04
+    version 0.05
 
 SYNOPSIS
         use State::Machine;
@@ -31,8 +31,8 @@ SYNOPSIS
             state => $is_off
         );
 
-        $lightswitch->apply('turn_off');
-        $lightswitch->status; # is_off
+        $lightswitch->apply('turn_on');
+        $lightswitch->status; # is_on
 
 DESCRIPTION
     A finite-state machine (FSM) or finite-state automaton (plural:
@@ -42,7 +42,8 @@ DESCRIPTION
     triggering event or condition; this is called a transition.
     State::Machine is a system for creating state machines and managing
     their transitions; It is also a great mechanism for enforcing and
-    tracking workflow, especially in distributed computing.
+    tracking workflow, especially in distributed computing. This library is
+    a Moose-based implementation of the State::Machine library.
 
     State machines are useful for modeling systems with perform a
     predetermined sequence of event and result in deterministic state.
