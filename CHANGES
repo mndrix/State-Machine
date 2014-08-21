@@ -1,6 +1,12 @@
 Changelog for State-Machine
 
-0.05 2014-08-21T08:28:23
+0.06 2014-08-21T12:30:51
+ - Standardized importing of type-checking functions.
+ - Fixed issue importing DSL from State::Machine::Simple, Added transition
+   deducing functionality.
+
+0.05 2014-08-21T08:28:29
+ - v0.05
  - Updated POD, Makefile, README, etc.
  - Refactored to use the new Bubblegum, Miscellaneous updates.
 
