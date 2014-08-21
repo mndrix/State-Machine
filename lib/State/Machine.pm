@@ -29,6 +29,13 @@ method apply {
     my $state = $self->state;
     my $next  = shift // $state->next;
 
+    if ($state && !$next) {
+        # deduce transition unless defined
+        if ($state->transitions->keys->count == 1) {
+            $next = $state->transitions->keys->get(0);
+        }
+    }
+
     # cannot transition
     State::Machine::Failure::Transition::Missing->throw
         unless $next->isa_string;
