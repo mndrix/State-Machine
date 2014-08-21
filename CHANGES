@@ -1,6 +1,6 @@
 Changelog for State-Machine
 
-0.05 2014-08-21T08:24:46
+0.05 2014-08-21T08:28:23
  - Updated POD, Makefile, README, etc.
  - Refactored to use the new Bubblegum, Miscellaneous updates.
 
