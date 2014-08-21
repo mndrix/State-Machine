@@ -7,8 +7,7 @@ use State::Machine::Failure::Transition::Unknown;
 use State::Machine::Transition;
 use Try::Tiny;
 
-use Bubblegum::Constraints map "typeof_$_",
-    qw(string hashref object);
+use Bubblegum::Constraints -typesof;
 
 # VERSION
 

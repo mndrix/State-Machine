@@ -3,7 +3,7 @@ package State::Machine::Failure::Simple;
 
 use Bubblegum::Class;
 use Function::Parameters;
-use Bubblegum::Constraints 'typeof_arrayref';
+use Bubblegum::Constraints -typesof;
 
 extends 'State::Machine::Failure';
 

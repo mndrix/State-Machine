@@ -4,7 +4,7 @@ package State::Machine::Failure;
 use Bubblegum::Class;
 use Function::Parameters;
 
-use Bubblegum::Constraints 'typeof_string';
+use Bubblegum::Constraints -typesof;
 
 extends 'Throwable::Error';
 

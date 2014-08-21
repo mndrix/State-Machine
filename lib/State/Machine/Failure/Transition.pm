@@ -2,7 +2,7 @@
 package State::Machine::Failure::Transition;
 
 use Bubblegum::Class;
-use Bubblegum::Constraints 'typeof_object', 'typeof_string';
+use Bubblegum::Constraints -typesof;
 
 extends 'State::Machine::Failure';
 
