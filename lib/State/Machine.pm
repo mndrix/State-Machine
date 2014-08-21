@@ -26,14 +26,7 @@ has 'topic' => (
 
 method apply {
     my $state = $self->state;
-    my $next  = shift // $state->next;
-
-    if ($state && !$next) {
-        # deduce transition unless defined
-        if ($state->transitions->keys->count == 1) {
-            $next = $state->transitions->keys->get(0);
-        }
-    }
+    my $next  = $self->next;
 
     # cannot transition
     State::Machine::Failure::Transition::Missing->throw
@@ -48,6 +41,7 @@ method apply {
         catch {
             # transition execution failure
             State::Machine::Failure::Transition::Execution->throw(
+                captured          => $_,
                 transition_name   => $next,
                 transition_object => $trans,
             );
@@ -64,7 +58,17 @@ method apply {
 };
 
 method next {
-    return $self->state->next;
+    my $state = $self->state;
+    my $next  = shift // $state->next;
+
+    if ($state && !$next) {
+        # deduce transition unless defined
+        if ($state->transitions->keys->count == 1) {
+            $next = $state->transitions->keys->get(0);
+        }
+    }
+
+    return $next;
 }
 
 method status {
