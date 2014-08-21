@@ -3,11 +3,9 @@ package State::Machine::Simple;
 
 use Bubblegum;
 use State::Machine;
-use State::Machine::Failure;
+use State::Machine::Failure::Simple;
 use State::Machine::State;
 use State::Machine::Transition;
-
-use Bubblegum::Constraints 'isa_hashref';
 
 use parent 'Exporter::Tiny';
 
@@ -46,7 +44,7 @@ sub in_state {
 
 sub BUILDMACHINE {
     my ($class, @args) = @_;
-    my $args   = isa_hashref $args[0] ? $args[0] : {@args};
+    my $args   = $args[0]->isa_hashref ? $args[0] : {@args};
     my $config = $CONFIGS{$class};
 
     my $init  = $config->get('at_state')->get(0)->first;
@@ -74,9 +72,8 @@ sub BUILDMACHINE {
 
         while (my($key, $val) = each %{$args{when}}) {
             my $result = $register{$val}
-                or State::Machine::Failure->raise(
+                or State::Machine::Failure::Simple->throw(
                     config  => $node,
-                    class   => 'simple',
                     message => sprintf
                         "Transition ($key) cannot result in the state ".
                         "($val); The state was not defined.",
@@ -127,12 +124,19 @@ sub _stash_config {
     in_state 'is_off' => ( when => { turn_on => 'is_on' } );
     at_state 'is_on'  => ( when => { turn_off => 'is_off' } );
 
-    sub _during_turn_on {
-        # do something; maybe start the radio
+    sub _before_turn_on {
+        my ($trans, $state, @args) = @_;
+        # do something; maybe plug it in
     }
 
-    sub _after_turn_off {
-        # undo something; maybe stop the radio if playing
+    sub _during_turn_on {
+        my ($trans, $state, @args) = @_;
+        # do something; maybe turn the knob or pull the lever
+    }
+
+    sub _after_turn_on {
+        my ($trans, $state, @args) = @_;
+        # do something else; maybe change adjust the positioning
     }
 
     package main;
@@ -150,7 +154,8 @@ interactions, and enforce the integrity of those interactions. State machines
 can also be used as a system for processing and reasoning about long-running
 asynchronous transactions. As an example of the functionality provided by this
 DSL, the follow is a demonstration of modeling a fictitious call-center process
-modeled using State::Machine::Simple.
+modeled using State::Machine::Simple. This library is a Moose-based
+implementation of the L<State::Machine> library.
 
     package CallCenter::Workflow::TelephoneCall;
 

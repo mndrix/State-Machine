@@ -2,35 +2,36 @@
 package State::Machine::State;
 
 use Bubblegum::Class;
-use State::Machine::Failure;
+use Function::Parameters;
+use State::Machine::Failure::Transition::Unknown;
 use State::Machine::Transition;
 use Try::Tiny;
 
-use Bubblegum::Constraints -minimal;
+use Bubblegum::Constraints map "typeof_$_",
+    qw(string hashref object);
 
 # VERSION
 
 has 'name' => (
     is       => 'ro',
-    isa      => _string,
+    isa      => typeof_string,
     required => 1
 );
 
 has 'next' => (
     is       => 'rw',
-    isa      => _string,
+    isa      => typeof_string,
     required => 0
 );
 
 has 'transitions' => (
     is      => 'ro',
-    isa     => _hashref,
+    isa     => typeof_hashref,
     default => sub {{}}
 );
 
-sub add_transition {
-    my $self  = _object shift;
-    my $trans = _object pop;
+method add_transition {
+    my $trans = pop;
     my $name  = shift;
 
     if ($trans->isa('State::Machine::Transition')) {
@@ -40,24 +41,21 @@ sub add_transition {
     }
 
     # transition not found
-    State::Machine::Failure->raise(
-        class   => 'transition/unknown',
-        message => 'Transition is unknown.',
+    State::Machine::Failure::Transition::Unknown->throw(
+        transition_name => $name,
     );
 }
 
-sub remove_transition {
-    my $self = _object shift;
-    my $name = _string shift;
+method remove_transition {
+    my $name = shift;
 
-    if ($self->transitions->get($name)) {
+    if ($self->transitions->get($name->asa_string)) {
         return $self->transitions->delete($name);
     }
 
     # transition not found
-    State::Machine::Failure->raise(
-        class   => 'transition/unknown',
-        message => 'Transition is unknown.',
+    State::Machine::Failure::Transition::Unknown->throw(
+        transition_name => $name,
     );
 }
 

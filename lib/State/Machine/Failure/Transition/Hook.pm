@@ -2,16 +2,22 @@
 package State::Machine::Failure::Transition::Hook;
 
 use Bubblegum::Class;
-use Bubblegum::Constraints -minimal;
+use Function::Parameters;
+
+use Bubblegum::Constraints 'typeof_string';
 
 extends 'State::Machine::Failure::Transition';
 
 # VERSION
 
-has hook => (
+has hook_name => (
     is       => 'ro',
-    isa      => _string,
-    required => 1
+    isa      => typeof_string,
+    required => 0,
 );
+
+method _build_message {
+    "Transition hooking failure."
+}
 
 1;

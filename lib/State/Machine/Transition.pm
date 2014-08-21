@@ -2,50 +2,47 @@
 package State::Machine::Transition;
 
 use Bubblegum::Class;
-use State::Machine::Failure;
+use Function::Parameters;
+use State::Machine::Failure::Transition::Hook;
 use State::Machine::State;
 use Try::Tiny;
 
-use Bubblegum::Constraints -minimal;
+use Bubblegum::Constraints map "typeof_$_",
+    qw(string hashref object integer);
 
 # VERSION
 
 has 'name' => (
     is       => 'ro',
-    isa      => _string,
+    isa      => typeof_string,
     required => 1
 );
 
 has 'result' => (
     is       => 'rw',
-    isa      => _object,
+    isa      => typeof_object,
     required => 1
 );
 
 has 'hooks' => (
     is      => 'ro',
-    isa     => _hashref,
-    default => sub {{
-        before => [],
-        during => [],
-        after  => []
-    }}
+    isa     => typeof_hashref,
+    default => sub {{ before => [], during => [], after => [] }}
 );
 
 has 'executable' => (
     is      => 'rw',
-    isa     => _integer,
+    isa     => typeof_integer,
     default => 1
 );
 
 has 'terminated' => (
     is      => 'rw',
-    isa     => _integer,
+    isa     => typeof_integer,
     default => 0
 );
 
-sub execute {
-    my $self = _object shift;
+method execute {
     return if !$self->executable;
 
     my @schedules = (
@@ -54,11 +51,10 @@ sub execute {
         $self->hooks->get('after'),
     );
 
-    $self->terminated(0);
     for my $schedule (@schedules) {
-        if (isa_arrayref $schedule) {
+        if ($schedule->isa_arrayref) {
             for my $task ($schedule->list) {
-                next if $self->terminated or !$task->typeof('code');
+                next if !$task->isa_coderef;
                 $task->call($self, @_);
             }
         }
@@ -67,19 +63,21 @@ sub execute {
     return $self->result;
 }
 
-sub hook {
-    my $self = _object shift;
-    my $name = _string shift;
-    my $code = _coderef shift;
+method hook {
+    my $name = shift;
+    my $code = shift;
+
+    $name->asa_string;
+    $code->asa_coderef;
+
     my $list = $self->hooks->get($name);
 
-    unless ($list->typeof('array')) {
-        # transition add-hook failure
-        State::Machine::Failure->raise(
-            class      => 'transition/hook',
-            message    => "Unrecognized hook ($name) in transition.",
-            transition => $self,
-            hook       => $name,
+    unless ($list->isa_arrayref) {
+        # transition hooking failure
+        State::Machine::Failure::Transition::Hook->throw(
+            hook_name         => $name,
+            transition_name   => $self->name,
+            transition_object => $self,
         );
     }
 
@@ -101,6 +99,7 @@ sub hook {
     );
 
     $trans->hook(during => sub {
+        my ($trans, $state, @args) = @_;
         # do something during resume
     });
 
@@ -138,15 +137,6 @@ The name of the transition. The value can be any scalar value.
 
 The result represents the resulting state of a transition. The value must be a
 L<State::Machine::State> object.
-
-=has terminated
-
-    my $terminated = $trans->terminated;
-    $trans->terminated(1);
-
-The terminated flag determines whether a transition in-execution should
-continue (i.e. processing hooks). This flag is reset on each execution an is
-meant to be called from within a hook.
 
 =method hook
 

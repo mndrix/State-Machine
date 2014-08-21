@@ -2,7 +2,8 @@
 package State::Machine::Failure::Simple;
 
 use Bubblegum::Class;
-use Bubblegum::Constraints -minimal;
+use Function::Parameters;
+use Bubblegum::Constraints 'typeof_arrayref';
 
 extends 'State::Machine::Failure';
 
@@ -10,7 +11,7 @@ extends 'State::Machine::Failure';
 
 has config => (
     is       => 'ro',
-    isa      => _arrayref,
+    isa      => typeof_arrayref,
     required => 1
 );
 

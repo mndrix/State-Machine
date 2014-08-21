@@ -2,72 +2,67 @@
 package State::Machine;
 
 use Bubblegum::Class;
-use State::Machine::Failure;
+use Function::Parameters;
+use State::Machine::Failure::Transition::Execution;
+use State::Machine::Failure::Transition::Missing;
+use State::Machine::Failure::Transition::Unknown;
 use Try::Tiny;
 
-use Bubblegum::Constraints -minimal;
+use Bubblegum::Constraints map "typeof_$_",
+    qw(string hashref object integer);
 
 # VERSION
 
 has 'state' => (
     is       => 'rw',
-    isa      => _object,
+    isa      => typeof_object,
     required => 1
 );
 
 has 'topic' => (
     is       => 'ro',
-    isa      => _string,
+    isa      => typeof_string,
     required => 1
 );
 
-sub apply {
-    my $self  = _object shift;
-    my $state = _object $self->state;
+method apply {
+    my $state = $self->state;
     my $next  = shift // $state->next;
 
-    # cannot transition into unknown state
-    unless (isa_string $next) {
-        State::Machine::Failure->raise(
-            class   => 'transition/unknown',
-            message => 'Transition is unknown.',
-        );
-    }
+    # cannot transition
+    State::Machine::Failure::Transition::Missing->throw
+        unless $next->isa_string;
 
-    my $trans = $state->transitions->get($next);
-
-    if ($trans) {
+    # find transition
+    if (my $trans = $state->transitions->get($next)) {
         try {
-            $trans->execute(@_);
-            $self->state($trans->result);
+            # attempt transition
+            $self->state($trans->execute($state, @_));
         }
         catch {
-            # transition failure
-            State::Machine::Failure->raise(
-                class      => 'transition/execution',
-                message    => 'Transition execution failure.',
-                transition => $trans,
-                explain    => $_,
+            # transition execution failure
+            State::Machine::Failure::Transition::Execution->throw(
+                transition_name   => $next,
+                transition_object => $trans,
             );
         }
     }
     else {
-        # transition not found
-        State::Machine::Failure->raise(
-            class   => 'transition/unknown',
-            message => 'Transition is unknown.',
+        # transition unknown
+        State::Machine::Failure::Transition::Unknown->throw(
+            transition_name => $next
         );
     }
 
     return $self->state;
 };
 
-sub next {
-    return _object(shift)->state->next;
+method next {
+    return $self->state->next;
 }
 
-sub status {
-    return _object(shift)->state->name;
+method status {
+    return $self->state->name;
 }
 
 1;
@@ -102,8 +97,8 @@ sub status {
         state => $is_off
     );
 
-    $lightswitch->apply('turn_off');
-    $lightswitch->status; # is_off
+    $lightswitch->apply('turn_on');
+    $lightswitch->status; # is_on
 
 =head1 DESCRIPTION
 
@@ -113,7 +108,8 @@ number of states. The machine is in only one state at a time. It can change from
 one state to another when initiated by a triggering event or condition; this is
 called a transition. State::Machine is a system for creating state machines and
 managing their transitions; It is also a great mechanism for enforcing and
-tracking workflow, especially in distributed computing.
+tracking workflow, especially in distributed computing. This library is a
+Moose-based implementation of the L<State::Machine> library.
 
 State machines are useful for modeling systems with perform a predetermined
 sequence of event and result in deterministic state. State::Machine, as you

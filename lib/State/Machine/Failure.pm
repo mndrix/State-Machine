@@ -2,24 +2,23 @@
 package State::Machine::Failure;
 
 use Bubblegum::Class;
-use Class::Forward;
+use Function::Parameters;
 
-use Bubblegum::Constraints -minimal;
-use Class::Load 'load_class';
+use Bubblegum::Constraints 'typeof_string';
 
-extends 'Bubblegum::Exception';
+extends 'Throwable::Error';
 
 # VERSION
 
-has 'explain' => (
-    is  => 'ro',
-    isa => _string,
+has 'message' => (
+    is      => 'ro',
+    isa     => typeof_string,
+    lazy    => 1,
+    builder => '_build_message',
 );
 
-sub raise {
-    my ($class, %args) = @_;
-    shift && unshift @_, my $goto = clsf _string $args{class};
-    load_class($goto) && goto $goto->can('throw');
+method _build_message {
+    "An unexpected failure has occurred"
 }
 
 1;

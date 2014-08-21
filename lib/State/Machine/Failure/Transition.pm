@@ -2,16 +2,22 @@
 package State::Machine::Failure::Transition;
 
 use Bubblegum::Class;
-use Bubblegum::Constraints -minimal;
+use Bubblegum::Constraints 'typeof_object', 'typeof_string';
 
 extends 'State::Machine::Failure';
 
 # VERSION
 
-has transition => (
+has transition_name => (
     is       => 'ro',
-    isa      => _object,
-    required => 1
+    isa      => typeof_string,
+    required => 0
+);
+
+has transition_object => (
+    is       => 'ro',
+    isa      => typeof_object,
+    required => 0
 );
 
 1;
