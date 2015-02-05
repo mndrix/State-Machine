@@ -68,4 +68,40 @@ subtest 'light-switch circular-state example' => sub {
     is $d, 1, '$turn_off -during- hook executed';
 };
 
+subtest 'horse race' => sub {
+    my $m = 'State::Machine';
+    my $s = 'State::Machine::State';
+    my $t = 'State::Machine::Transition';
+
+    # state
+    my $standing = $s->new(name => 'standing');
+    my $running  = $s->new(name => 'running');
+
+    # transitions
+    my $quiet = $t->new(name => 'quiet', result => $standing);
+    my $bell  = $t->new(name => 'bell', result => $running);
+
+    # bind
+    $standing->add_transition($quiet);
+    $standing->add_transition($bell);
+
+    # build machine
+    my $race = $m->new(
+        topic => 'horse race',
+        state => $standing # initial state
+    );
+
+    # standing -> standing
+    $race->apply('quiet');
+    is $race->state->name, 'standing', 'horse standing behind the gate';
+
+    # standing -> standing, again
+    $race->apply('quiet');
+    is $race->state->name, 'standing', 'horse still standing';
+
+    # standing -> running
+    $race->apply('bell');
+    is $race->state->name, 'running', 'horse running down the track';
+};
+
 ok 1 and done_testing;

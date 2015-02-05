@@ -26,7 +26,7 @@ has 'topic' => (
 
 method apply {
     my $state = $self->state;
-    my $next  = $self->next;
+    my $next  = $self->next(shift);
 
     # cannot transition
     State::Machine::Failure::Transition::Missing->throw
